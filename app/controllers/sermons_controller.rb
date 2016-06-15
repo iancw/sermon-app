@@ -10,8 +10,12 @@ class SermonsController < ApplicationController
     respond_to do |format|
       format.html
     end
-
-    send_email(@sermon, @text)
+    
+    if user_signed_in?
+      send_email(@sermon, @text)
+    else
+      flash[:notice] = 'User not logged in.'
+    end
   end
 
   def esv_url passage
@@ -44,11 +48,7 @@ class SermonsController < ApplicationController
   def send_email (sermon, text)
     @sermon = sermon
     @text = text
-    if user_signed_in?
       @user = current_user
       MyMailer.sermon_email(@user,@sermon,@text).deliver_later
-    else
-      redirect_to(index, notice: 'User not logged in.')
-    end 
   end
 end
